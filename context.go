@@ -20,6 +20,7 @@ type Context struct {
 	// 请求相关的信息
 	Path   string
 	Method string
+	Params map[string]string // 解析的参数 c.Param("lang")的方式获取到对应的值。
 
 	// 响应的信息
 	StatusCode int
@@ -131,4 +132,18 @@ func (c *Context) HTML(code int, html string) {
 	c.SetHeader("Content-Type", "text/html")
 	c.Status(code)
 	c.Writer.Write([]byte(html))
+}
+
+//
+// Param
+//  @Description: 获得路由中的参数
+//	路由是 /p/:lang/s 请求的路由是 /p/aa/s
+//	此时 c.Params {lang:"aa"} 调用 c.Param("lang") 可以得到 "aa"
+//  @receiver c
+//  @param key
+//  @return string
+//
+func (c *Context) Param(key string) string {
+	value, _ := c.Params[key]
+	return value
 }

@@ -80,6 +80,7 @@ func (n *node) insert(pattern string, parts []string, height int) {
 			part:   part,
 			isWild: part[0] == ':' || part[0] == '*',
 		}
+		n.children = append(n.children, child)
 	}
 	// 否则直接插入
 	child.insert(pattern, parts, height+1)
