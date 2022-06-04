@@ -25,7 +25,7 @@ type Context struct {
 	StatusCode int
 }
 
-func nextContext(w http.ResponseWriter, r *http.Request) *Context {
+func newContext(w http.ResponseWriter, r *http.Request) *Context {
 	return &Context{
 		Writer: w,
 		Req:    r,
