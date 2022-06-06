@@ -43,7 +43,7 @@ func (n *node) matchChildren(part string) []*node {
 			nodes = append(nodes, child)
 		}
 	}
-	return nil
+	return nodes
 }
 
 // 对于路由来说，最重要的当然是注册与匹配了。
