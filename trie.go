@@ -76,13 +76,9 @@ func (n *node) insert(pattern string, parts []string, height int) {
 	child := n.matchChild(part)
 	// 如果没有的话就新建一个
 	if child == nil {
-		child = &node{
-			part:   part,
-			isWild: part[0] == ':' || part[0] == '*',
-		}
+		child = &node{part: part, isWild: part[0] == ':' || part[0] == '*'}
 		n.children = append(n.children, child)
 	}
-	// 否则直接插入
 	child.insert(pattern, parts, height+1)
 }
 
@@ -111,7 +107,6 @@ func (n *node) search(parts []string, height int) *node {
 	children := n.matchChildren(part)
 
 	for _, child := range children {
-		// 如果能找到 node  就返回 node
 		result := child.search(parts, height+1)
 		if result != nil {
 			return result

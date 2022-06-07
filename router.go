@@ -38,10 +38,10 @@ func parsePattern(pattern string) []string {
 	vs := strings.Split(pattern, "/")
 
 	parts := make([]string, 0)
-	for _, v := range vs {
-		if v != "" {
-			parts = append(parts, v)
-			if v[0] == '*' {
+	for _, item := range vs {
+		if item != "" {
+			parts = append(parts, item)
+			if item[0] == '*' {
 				break
 			}
 		}
@@ -89,30 +89,29 @@ func (router *router) addRoute(method string, pattern string, handle HandleFunc)
 func (router *router) getRouter(method string, path string) (*node, map[string]string) {
 	searchParts := parsePattern(path)
 	params := make(map[string]string)
-
 	root, ok := router.roots[method]
+
 	if !ok {
 		return nil, nil
 	}
 
-	node := root.search(searchParts, 0)
-	if node == nil {
-		return nil, nil
-	}
-	// 匹配到了相应的结点
-	parts := parsePattern(node.pattern)
-	for index, part := range parts {
-		// 处理 :
-		if part[0] == ':' {
-			params[part[1:]] = searchParts[index]
+	n := root.search(searchParts, 0)
+
+	if n != nil {
+		parts := parsePattern(n.pattern)
+		for index, part := range parts {
+			if part[0] == ':' {
+				params[part[1:]] = searchParts[index]
+			}
+			if part[0] == '*' && len(part) > 1 {
+				params[part[1:]] = strings.Join(searchParts[index:], "/")
+				break
+			}
 		}
-		// 处理 *
-		if part[0] == '*' && len(part) > 1 {
-			params[part[1:]] = strings.Join(searchParts[index:], "/")
-			break
-		}
+		return n, params
 	}
-	return node, params
+
+	return nil, nil
 }
 
 //
@@ -122,13 +121,12 @@ func (router *router) getRouter(method string, path string) (*node, map[string]s
 //  @param c
 //
 func (router *router) handle(c *Context) {
-	node, params := router.getRouter(c.Method, c.Path)
-	if node == nil {
+	n, params := router.getRouter(c.Method, c.Path)
+	if n != nil {
+		c.Params = params
+		key := c.Method + "-" + n.pattern
+		router.handlers[key](c)
+	} else {
 		c.String(http.StatusNotFound, "404 NOT FOUND: %s\n", c.Path)
-		return
 	}
-
-	c.Params = params
-	key := c.Method + "-" + c.Path
-	router.handlers[key](c)
 }
