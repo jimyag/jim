@@ -3,6 +3,7 @@ package jim
 import (
 	"log"
 	"net/http"
+	"strings"
 )
 
 // HandleFunc jim 对请求进行处理的方法
@@ -86,7 +87,15 @@ func (engine *Engine) Run(addr string) error {
 //  @param r
 //
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var middlewares []HandleFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(r.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
+
 	c := newContext(w, r)
+	c.handlers = middlewares
 	engine.router.handle(c)
 }
 
@@ -142,4 +151,9 @@ func (group *RouterGroup) GET(pattern string, handler HandleFunc) {
 //
 func (group *RouterGroup) POST(pattern string, handler HandleFunc) {
 	group.addRoute("POST", pattern, handler)
+}
+
+// Use 添加 中间件 到 Griup 中
+func (group *RouterGroup) Use(middlewares ...HandleFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
 }

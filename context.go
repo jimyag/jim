@@ -24,6 +24,10 @@ type Context struct {
 
 	// 响应的信息
 	StatusCode int
+
+	// 中间件
+	handlers []HandleFunc
+	index    int // 记录当前到了第几个中间件
 }
 
 func newContext(w http.ResponseWriter, r *http.Request) *Context {
@@ -32,6 +36,17 @@ func newContext(w http.ResponseWriter, r *http.Request) *Context {
 		Req:    r,
 		Path:   r.URL.Path,
 		Method: r.Method,
+		index:  -1,
+	}
+}
+
+// Next 继续执行下一个中间件 当调用 Next 的时候，控制权交给了下一个中间件，
+// 		直到调用了最后一个中间件，然后从后往前
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		c.handlers[c.index](c)
 	}
 }
 
@@ -146,4 +161,10 @@ func (c *Context) HTML(code int, html string) {
 func (c *Context) Param(key string) string {
 	value, _ := c.Params[key]
 	return value
+}
+
+// Fail
+func (c *Context) Fail(code int, err string) {
+	c.index = len(c.handlers)
+	c.JSON(code, H{"message": err})
 }
