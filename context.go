@@ -28,6 +28,8 @@ type Context struct {
 	// 中间件
 	handlers []HandleFunc
 	index    int // 记录当前到了第几个中间件
+
+	engine *Engine
 }
 
 func newContext(w http.ResponseWriter, r *http.Request) *Context {
@@ -143,10 +145,12 @@ func (c *Context) Data(code int, data []byte) {
 //  @param code
 //  @param html
 //
-func (c *Context) HTML(code int, html string) {
+func (c *Context) HTML(code int, name string, data interface{}) {
 	c.SetHeader("Content-Type", "text/html")
 	c.Status(code)
-	c.Writer.Write([]byte(html))
+	if err := c.engine.htmlTemplates.ExecuteTemplate(c.Writer, name, data); err != nil {
+		c.Fail(500, err.Error())
+	}
 }
 
 //
