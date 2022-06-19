@@ -9,7 +9,7 @@ import (
 func main() {
 	r := jim.New()
 	r.GET("/index", func(c *jim.Context) {
-		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
+		c.HTML(http.StatusOK, "", "<h1>Index Page</h1>")
 	})
 
 	// curl http://localhost:9999/v1/hello?name=jimyag
@@ -17,7 +17,7 @@ func main() {
 	v1 := r.Group("/v1")
 	{
 		v1.GET("/", func(c *jim.Context) {
-			c.HTML(http.StatusOK, "<h1>Hello Jim</h1>")
+			c.HTML(http.StatusOK, " ", "<h1>Hello Jim</h1>")
 		})
 
 		v1.GET("/hello", func(c *jim.Context) {
