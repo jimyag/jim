@@ -194,3 +194,10 @@ func (group *RouterGroup) Static(relativePath string, root string) {
 	// Register GET handlers
 	group.GET(urlPattern, handler)
 }
+
+// Default use Logger() & Recovery middlewares
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine
+}
