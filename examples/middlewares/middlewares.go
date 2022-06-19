@@ -26,7 +26,7 @@ func main() {
 	// <h1>Hello Jim</h1>
 	// 2022/06/16 22:55:50 [200] / in 7.887µs
 	r.GET("/", func(c *jim.Context) {
-		c.HTML(http.StatusOK, "<h1>Hello Jim</h1>")
+		c.HTML(http.StatusOK, "", "<h1>Hello Jim</h1>")
 	})
 
 	v2 := r.Group("/v2")
